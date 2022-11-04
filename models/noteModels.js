@@ -6,7 +6,7 @@ const db = client.db("TodoTask");
 async function findAll() {
   return new Promise(async (resolve, reject) => {
     const collec = await db.collection("note");
-    const notes = await collec.find();
+    const notes = await collec.find().sort({ index: 1 });
     const result = await notes.toArray();
     resolve(result);
   });

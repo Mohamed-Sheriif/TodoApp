@@ -7,8 +7,13 @@ async function getNotes(req, res) {
   try {
     const allNotes = await Notes.findAll();
 
-    res.writeHead(200, { "Content-Type": "application/json" });
-    res.end(JSON.stringify(allNotes));
+    if (allNotes) {
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(JSON.stringify(allNotes));
+    } else {
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ message: "Empty" }));
+    }
   } catch (error) {
     console.log(error);
   }
@@ -21,7 +26,7 @@ async function getNote(req, res, id) {
 
   if (!note) {
     res.writeHead(404, { "Content-Type": "application/json" });
-    res.end(JSON.stringify({ message: "404 Note Not Found" }));
+    res.end(JSON.stringify({ message: " Note Not Found" }));
   } else {
     res.writeHead(200, { "Content-Type": "application/json" });
     res.end(JSON.stringify(note));
@@ -36,16 +41,25 @@ async function addNotes(req, res) {
 
     const { title, desc, index } = JSON.parse(body);
 
-    const note = {
-      title,
-      desc,
-      index,
-    };
+    if (title == null || desc == null || index == null) {
+      res.writeHead(400, { "Content-Type": "application/json" });
+      res.end(
+        JSON.stringify({
+          message: "title , description and index are Required !",
+        })
+      );
+    } else {
+      const note = {
+        title,
+        desc,
+        index,
+      };
 
-    const noteRes = await Notes.create(note);
+      const noteRes = await Notes.create(note);
 
-    res.writeHead(202, { "Content-Type": "application/json" });
-    res.end(JSON.stringify(noteRes));
+      res.writeHead(202, { "Content-Type": "application/json" });
+      res.end(JSON.stringify(noteRes));
+    }
   } catch (error) {
     console.log(error);
   }
@@ -55,7 +69,7 @@ async function addNotes(req, res) {
 //@route PUT /api/notes/:id
 async function updateNotes(req, res, id) {
   const note = await Notes.findById(Number(id));
-  console.log(note);
+
   if (!note) {
     res.writeHead(404, { "Content-Type": "application/json" });
     res.end(JSON.stringify({ message: "Note Not Found" }));
@@ -69,7 +83,6 @@ async function updateNotes(req, res, id) {
       desc: desc || note.desc,
       index: note.index,
     };
-    console.log(noteData);
 
     const updNote = await Notes.update(noteData, Number(id));
     res.writeHead(200, { "Content-Type": "application/json" });
@@ -84,7 +97,7 @@ async function deleteNote(req, res, id) {
 
   if (!note) {
     res.writeHead(404, { "Content-Type": "application/json" });
-    res.end(JSON.stringify({ message: "404 Note Not Found" }));
+    res.end(JSON.stringify({ message: " Note Not Found" }));
   } else {
     await Notes.remove(Number(id));
     res.writeHead(200, { "Content-Type": "application/json" });
